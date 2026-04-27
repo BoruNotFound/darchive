@@ -70,6 +70,66 @@ export async function listVideos(): Promise<Video[]> {
   return (data as VideoRow[]).map(rowToVideo);
 }
 
+export interface SearchVideosOpts {
+  searchQuery?: string;
+  /** Empty means "no guest filter". When set, AND-logic across IDs. */
+  guestIds?: GuestId[];
+  pageSize: number;
+  /** Zero-based. */
+  page: number;
+}
+
+export interface SearchVideosResult {
+  videos: Video[];
+  /** Total rows matching the filter (NOT just the current page). */
+  total: number;
+}
+
+/**
+ * Server-side filter + pagination for the dashboard. Returns one page of
+ * results and the *total matching count*, so the UI can show "共 X 条" even
+ * before all pages are loaded.
+ *
+ * Two-step when a guest AND filter is active: one RPC to get matching IDs,
+ * one paginated query to fetch them. PostgREST can't express HAVING COUNT
+ * inline, so we keep that piece in SQL.
+ */
+export async function searchVideos(
+  opts: SearchVideosOpts,
+): Promise<SearchVideosResult> {
+  const start = opts.page * opts.pageSize;
+  const end = start + opts.pageSize - 1;
+
+  let allowedIds: string[] | null = null;
+  if (opts.guestIds && opts.guestIds.length > 0) {
+    const { data, error } = await supabase.rpc("videos_with_all_guests", {
+      gids: opts.guestIds,
+    });
+    if (error) throw error;
+    allowedIds = (data as { video_id: string }[]).map((r) => r.video_id);
+    // Short-circuit: no video has every selected guest, no need to query.
+    if (allowedIds.length === 0) return { videos: [], total: 0 };
+  }
+
+  let query = supabase
+    .from("videos")
+    .select("*, video_guests(guest_id)", { count: "exact" })
+    .order("published_at", { ascending: false });
+
+  const q = opts.searchQuery?.trim();
+  if (q) query = query.ilike("title", `%${q}%`);
+  if (allowedIds !== null) query = query.in("id", allowedIds);
+
+  query = query.range(start, end);
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+  return {
+    videos: (data as VideoRow[]).map(rowToVideo),
+    total: count ?? 0,
+  };
+}
+
 export async function listGuests(): Promise<Guest[]> {
   const { data, error } = await supabase
     .from("guests")

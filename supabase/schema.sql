@@ -89,6 +89,19 @@ CREATE OR REPLACE FUNCTION is_admin() RETURNS boolean
     SELECT EXISTS (SELECT 1 FROM admins WHERE user_id = auth.uid());
   $$;
 
+-- Returns video IDs that contain *all* of the supplied guest IDs.
+-- Used by the dashboard's server-side guest AND filter — PostgREST can't
+-- express the HAVING COUNT trick directly, so we keep it in SQL.
+CREATE OR REPLACE FUNCTION videos_with_all_guests(gids text[])
+RETURNS TABLE (video_id text)
+LANGUAGE sql STABLE
+AS $$
+  SELECT vg.video_id FROM video_guests vg
+  WHERE vg.guest_id = ANY(gids)
+  GROUP BY vg.video_id
+  HAVING COUNT(DISTINCT vg.guest_id) = array_length(gids, 1);
+$$;
+
 -- Audit trigger: writes one row to audit_log per video INSERT/UPDATE/DELETE.
 -- SECURITY DEFINER + postgres ownership lets it bypass audit_log RLS.
 CREATE OR REPLACE FUNCTION log_video_change()
@@ -211,6 +224,8 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO service_role;
 -- but Supabase's newer API key setup doesn't always inherit that — be
 -- explicit so the frontend can call is_admin() via supabase.rpc().
 GRANT EXECUTE ON FUNCTION is_admin() TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION videos_with_all_guests(text[])
+  TO anon, authenticated, service_role;
 
 -- ----------------------------------------------------------------------------
 -- 5. Storage policies (Phase 5)

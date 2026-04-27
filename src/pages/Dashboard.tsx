@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { MultiGuestFilter } from "@/components/MultiGuestFilter";
 import { VideoList } from "@/components/VideoList";
-import { listGuests, listVideos } from "@/lib/db";
+import { listGuests, searchVideos } from "@/lib/db";
 import type { Guest, GuestId, Video } from "@/types";
+
+const PAGE_SIZE = 30;
 
 export function Dashboard() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -12,64 +14,120 @@ export function Dashboard() {
     () => new Set(),
   );
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [vs, gs] = await Promise.all([listVideos(), listGuests()]);
-        if (cancelled) return;
-        setVideos(vs);
-        setGuests(gs);
-      } catch (err) {
-        console.error("[dashboard] data fetch failed:", err);
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : String(err));
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Discard responses from in-flight requests when filters changed mid-flight.
+  const requestVersion = useRef(0);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const guestsById = useMemo(
     () => new Map(guests.map((g) => [g.id, g])),
     [guests],
   );
 
-  // AND across both filters: a video must contain every selected guest AND
-  // its title must contain the search query (substring, case-insensitive).
-  const filteredVideos = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    const selectedArr = Array.from(selectedGuestIds);
-    return videos.filter((v) => {
-      if (
-        selectedArr.length > 0 &&
-        !selectedArr.every((id) => v.guestIds.includes(id))
-      ) {
-        return false;
-      }
-      if (q && !v.title.toLowerCase().includes(q)) {
-        return false;
-      }
-      return true;
-    });
-  }, [videos, selectedGuestIds, searchQuery]);
+  // Stable string of selected guest IDs for effect deps (Set comparison
+  // by reference would re-fire even on identical contents).
+  const guestIdsKey = useMemo(
+    () => Array.from(selectedGuestIds).sort().join(","),
+    [selectedGuestIds],
+  );
+
+  // Guests load once, independent of the videos-paging cycle.
+  useEffect(() => {
+    let cancelled = false;
+    listGuests()
+      .then((gs) => {
+        if (!cancelled) setGuests(gs);
+      })
+      .catch((e) => console.warn("[guests] load failed:", e));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Whenever the filters change, reset to page 0 and refetch.
+  useEffect(() => {
+    let cancelled = false;
+    const version = ++requestVersion.current;
+    setLoading(true);
+    setError(null);
+    setPage(0);
+
+    const guestIdsArr = guestIdsKey ? guestIdsKey.split(",") : [];
+
+    searchVideos({
+      searchQuery,
+      guestIds: guestIdsArr,
+      pageSize: PAGE_SIZE,
+      page: 0,
+    })
+      .then((result) => {
+        if (cancelled || version !== requestVersion.current) return;
+        setVideos(result.videos);
+        setTotal(result.total);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        console.error("[dashboard] search failed:", e);
+        setError(e instanceof Error ? e.message : String(e));
+      })
+      .finally(() => {
+        if (!cancelled && version === requestVersion.current) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchQuery, guestIdsKey]);
+
+  const hasMore = !loading && videos.length < total;
+
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    const version = requestVersion.current;
+    const nextPage = page + 1;
+    try {
+      const guestIdsArr = guestIdsKey ? guestIdsKey.split(",") : [];
+      const result = await searchVideos({
+        searchQuery,
+        guestIds: guestIdsArr,
+        pageSize: PAGE_SIZE,
+        page: nextPage,
+      });
+      if (version !== requestVersion.current) return; // filters changed mid-flight
+      setVideos((prev) => [...prev, ...result.videos]);
+      setTotal(result.total);
+      setPage(nextPage);
+    } catch (e) {
+      console.error("[dashboard] loadMore failed:", e);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasMore, page, searchQuery, guestIdsKey]);
+
+  // IntersectionObserver: trigger loadMore when the sentinel scrolls into view.
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: "200px" }, // start fetching slightly before the user reaches the bottom
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMore, hasMore]);
 
   const isFiltering = selectedGuestIds.size > 0 || searchQuery.trim() !== "";
-
-  const sortedVideos = useMemo(
-    () =>
-      [...filteredVideos].sort((a, b) =>
-        b.publishedAt.localeCompare(a.publishedAt),
-      ),
-    [filteredVideos],
-  );
 
   return (
     <>
@@ -79,7 +137,7 @@ export function Dashboard() {
             大物是也 · 视频面板
           </h1>
           <p className="text-sm text-slate-500">
-            浏览所有视频,按嘉宾筛选(可多选,显示同时出现的视频)。
+            浏览所有视频,按标题与嘉宾筛选(嘉宾可多选)。
           </p>
         </div>
       </header>
@@ -104,17 +162,15 @@ export function Dashboard() {
           <span>
             {loading ? (
               "加载中…"
-            ) : !isFiltering ? (
-              <>
-                共{" "}
-                <strong className="text-slate-900">{sortedVideos.length}</strong>{" "}
-                条
-              </>
             ) : (
               <>
-                匹配{" "}
-                <strong className="text-slate-900">{sortedVideos.length}</strong>{" "}
-                条 / 共 {videos.length} 条
+                {isFiltering ? "匹配 " : "共 "}
+                <strong className="text-slate-900">{total}</strong> 条
+                {videos.length < total && (
+                  <span className="ml-1 text-slate-400">
+                    · 已加载 {videos.length}
+                  </span>
+                )}
               </>
             )}
           </span>
@@ -132,7 +188,22 @@ export function Dashboard() {
         )}
 
         {!loading && !error && (
-          <VideoList videos={sortedVideos} guestsById={guestsById} />
+          <>
+            <VideoList videos={videos} guestsById={guestsById} />
+            {hasMore && (
+              <div
+                ref={sentinelRef}
+                className="py-10 text-center text-sm text-slate-400"
+              >
+                {loadingMore ? "加载更多…" : "继续滚动加载"}
+              </div>
+            )}
+            {!hasMore && total > 0 && videos.length === total && (
+              <div className="py-10 text-center text-xs text-slate-400">
+                已加载全部
+              </div>
+            )}
+          </>
         )}
       </main>
 
