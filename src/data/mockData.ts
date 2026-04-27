@@ -1,0 +1,112 @@
+import type { Guest, Video } from "@/types";
+
+// Mock data for Phase 1. Replaced in Phase 4 by data from Supabase.
+// Names are placeholders — swap for real cast members when the crawl runs.
+
+export const mockGuests: Guest[] = [
+  { id: "g1", name: "大物是也" },
+  { id: "g2", name: "老李" },
+  { id: "g3", name: "小张" },
+  { id: "g4", name: "阿K" },
+  { id: "g5", name: "胖虎" },
+  { id: "g6", name: "小美" },
+];
+
+export const mockVideos: Video[] = [
+  {
+    id: "v1",
+    title: "我和老李去吃了全城最辣的火锅",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0001",
+    publishedAt: "2026-04-12",
+    guestIds: ["g1", "g2"],
+    durationSec: 14 * 60,
+  },
+  {
+    id: "v2",
+    title: "三人露营 100 小时挑战",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0002",
+    publishedAt: "2026-03-28",
+    guestIds: ["g1", "g3", "g4"],
+    durationSec: 22 * 60,
+  },
+  {
+    id: "v3",
+    title: "胖虎的减肥日记 EP1",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0003",
+    publishedAt: "2026-03-10",
+    guestIds: ["g1", "g5"],
+    durationSec: 11 * 60,
+  },
+  {
+    id: "v4",
+    title: "我们承包了一座山",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0004",
+    publishedAt: "2026-02-22",
+    guestIds: ["g1", "g2", "g3", "g4", "g5"],
+    durationSec: 31 * 60,
+  },
+  {
+    id: "v5",
+    title: "小美教大家做兰州牛肉面",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0005",
+    publishedAt: "2026-02-05",
+    guestIds: ["g1", "g6"],
+    durationSec: 18 * 60,
+  },
+  {
+    id: "v6",
+    title: "深夜寻味:北京最难找的烧烤摊",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0006",
+    publishedAt: "2026-01-18",
+    guestIds: ["g1", "g2", "g4"],
+    durationSec: 20 * 60,
+  },
+  {
+    id: "v7",
+    title: "我们一起搬进了新房子",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0007",
+    publishedAt: "2025-12-30",
+    guestIds: ["g1", "g3", "g6"],
+    durationSec: 25 * 60,
+  },
+  {
+    id: "v8",
+    title: "年终盘点:2025 我们最难忘的瞬间",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0008",
+    publishedAt: "2025-12-15",
+    guestIds: ["g1", "g2", "g3", "g4", "g5", "g6"],
+    durationSec: 40 * 60,
+  },
+  {
+    id: "v9",
+    title: "阿K 第一次开飞机",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0009",
+    publishedAt: "2025-11-02",
+    guestIds: ["g1", "g4"],
+    durationSec: 16 * 60,
+  },
+  {
+    id: "v10",
+    title: "老李带我们回他老家过节",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0010",
+    publishedAt: "2025-10-08",
+    guestIds: ["g1", "g2", "g6"],
+    durationSec: 28 * 60,
+  },
+  {
+    id: "v11",
+    title: "胖虎 VS 小张:谁是真正的大胃王",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0011",
+    publishedAt: "2025-09-14",
+    guestIds: ["g1", "g3", "g5"],
+    durationSec: 19 * 60,
+  },
+  {
+    id: "v12",
+    title: "我一个人爬了泰山",
+    bilibiliUrl: "https://www.bilibili.com/video/BV1mock0012",
+    publishedAt: "2025-08-20",
+    guestIds: ["g1"],
+    durationSec: 15 * 60,
+  },
+];
