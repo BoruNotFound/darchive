@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
 import { AdminGate } from "@/components/AdminGate";
 import { VideoForm } from "@/components/VideoForm";
@@ -52,6 +52,8 @@ function VideosManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editor, setEditor] = useState<EditorState>({ mode: "closed" });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const editIdFromUrl = searchParams.get("edit");
 
   async function refresh() {
     try {
@@ -68,6 +70,19 @@ function VideosManager() {
   useEffect(() => {
     refresh();
   }, []);
+
+  // Auto-open the editor for the video named in `?edit=<bvid>`. Lets links
+  // from /admin/videos-missing-guests jump straight into the form. We clear
+  // the param after opening so a refresh doesn't keep re-triggering.
+  useEffect(() => {
+    if (!editIdFromUrl) return;
+    if (videos.length === 0) return;
+    const video = videos.find((v) => v.id === editIdFromUrl);
+    if (video) setEditor({ mode: "edit", video });
+    const next = new URLSearchParams(searchParams);
+    next.delete("edit");
+    setSearchParams(next, { replace: true });
+  }, [editIdFromUrl, videos, searchParams, setSearchParams]);
 
   async function handleCreate(input: VideoInput) {
     await createVideo(input);

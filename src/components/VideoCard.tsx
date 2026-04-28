@@ -41,14 +41,14 @@ export function VideoCard({ video, guestsById }: VideoCardProps) {
           />
         </a>
       )}
-      <div className="flex flex-1 flex-col p-5">
-      <header className="mb-3 flex items-start justify-between gap-3">
-        <h3 className="text-base font-semibold leading-snug text-slate-900">
+      <div className="flex flex-1 flex-col p-3">
+      <header className="mb-2 flex items-start justify-between gap-2">
+        <h3 className="text-sm font-semibold leading-snug text-slate-900">
           {video.title}
         </h3>
       </header>
 
-      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+      <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
         <span>{formatDate(video.publishedAt)}</span>
         {duration && (
           <>
@@ -58,7 +58,7 @@ export function VideoCard({ video, guestsById }: VideoCardProps) {
         )}
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-1.5">
+      <div className="mb-3 flex flex-wrap gap-1">
         {video.guestIds.map((id) => {
           const g = guestsById.get(id);
           if (!g) {
@@ -87,7 +87,7 @@ export function VideoCard({ video, guestsById }: VideoCardProps) {
         href={video.bilibiliUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-auto inline-flex w-fit items-center gap-1 text-sm font-medium text-pink-600 hover:text-pink-700"
+        className="mt-auto inline-flex w-fit items-center gap-1 text-xs font-medium text-pink-600 hover:text-pink-700"
       >
         在 bilibili 观看
         <span aria-hidden>→</span>

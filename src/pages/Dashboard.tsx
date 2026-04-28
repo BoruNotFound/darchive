@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { AcknowledgementButton } from "@/components/AcknowledgementButton";
 import { MultiGuestFilter } from "@/components/MultiGuestFilter";
 import { VideoList } from "@/components/VideoList";
 import { listGuests, searchVideos } from "@/lib/db";
 import type { Guest, GuestId, Video } from "@/types";
 
-const PAGE_SIZE = 30;
+const PAGE_SIZE = 40;
 
 export function Dashboard() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -132,13 +133,24 @@ export function Dashboard() {
   return (
     <>
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-6 py-6">
-          <h1 className="text-2xl font-bold tracking-tight">
-            大物是也 · 视频面板
-          </h1>
-          <p className="text-sm text-slate-500">
-            浏览所有视频,按标题与嘉宾筛选(嘉宾可多选)。
-          </p>
+        <div className="mx-auto flex max-w-6xl items-start justify-between gap-4 px-6 py-6">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-bold tracking-tight">
+              大物是也 · 视频面板
+            </h1>
+            <p className="text-sm text-slate-500">
+              浏览所有视频,按标题与嘉宾筛选(嘉宾可多选)。
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-4">
+            <AcknowledgementButton />
+            <Link
+              to="/analytics"
+              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-pink-300 hover:text-pink-700"
+            >
+              数据分析 →
+            </Link>
+          </div>
         </div>
       </header>
 

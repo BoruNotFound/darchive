@@ -78,6 +78,21 @@ function AdminHome() {
         </Link>
 
         <Link
+          to="/admin/videos-missing-guests"
+          className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-pink-300 hover:shadow-md md:col-span-2"
+        >
+          <div className="text-base font-semibold text-slate-900">
+            缺少嘉宾名单的视频
+          </div>
+          <p className="mt-1 text-sm text-slate-500">
+            协作工作区 — 列出所有还没有标注嘉宾的视频,逐个补全。
+          </p>
+          <div className="mt-3 text-xs font-medium text-pink-600">
+            前往 →
+          </div>
+        </Link>
+
+        <Link
           to="/admin/audit-log"
           className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-pink-300 hover:shadow-md md:col-span-2"
         >

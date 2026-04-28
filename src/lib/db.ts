@@ -70,6 +70,24 @@ export async function listVideos(): Promise<Video[]> {
   return (data as VideoRow[]).map(rowToVideo);
 }
 
+/**
+ * Videos with publish_at within [startDate, endDate] inclusive.
+ * Both dates are YYYY-MM-DD strings. Used by the analytics page.
+ */
+export async function listVideosInRange(
+  startDate: string,
+  endDate: string,
+): Promise<Video[]> {
+  const { data, error } = await supabase
+    .from("videos")
+    .select("*, video_guests(guest_id)")
+    .gte("published_at", startDate)
+    .lte("published_at", endDate)
+    .order("published_at", { ascending: false });
+  if (error) throw error;
+  return (data as VideoRow[]).map(rowToVideo);
+}
+
 export interface SearchVideosOpts {
   searchQuery?: string;
   /** Empty means "no guest filter". When set, AND-logic across IDs. */
@@ -276,6 +294,48 @@ export async function deleteVideo(id: VideoId): Promise<void> {
   // ON DELETE CASCADE on video_guests handles the join cleanup.
   const { error } = await supabase.from("videos").delete().eq("id", id);
   if (error) throw error;
+}
+
+/**
+ * Replace the guest list for one video without touching its other fields.
+ * Used by the "missing-guests" admin flow where admins only need to
+ * assign guests, not edit metadata.
+ */
+export async function setVideoGuests(
+  videoId: VideoId,
+  guestIds: GuestId[],
+): Promise<void> {
+  const { error: dErr } = await supabase
+    .from("video_guests")
+    .delete()
+    .eq("video_id", videoId);
+  if (dErr) throw dErr;
+  if (guestIds.length > 0) {
+    const { error: iErr } = await supabase.from("video_guests").insert(
+      guestIds.map((gid) => ({ video_id: videoId, guest_id: gid })),
+    );
+    if (iErr) throw iErr;
+  }
+}
+
+/**
+ * Videos with zero rows in video_guests — the admin's "to-do list" for
+ * filling in guest assignments. Sorted newest-first.
+ *
+ * Implemented client-side over a single `videos` query because for our
+ * scale (a few hundred rows) it's fast and avoids adding another SQL
+ * function. Switch to a server-side function if the table grows past
+ * a few thousand rows.
+ */
+export async function listVideosMissingGuests(): Promise<Video[]> {
+  const { data, error } = await supabase
+    .from("videos")
+    .select("*, video_guests(guest_id)")
+    .order("published_at", { ascending: false });
+  if (error) throw error;
+  return (data as VideoRow[])
+    .map(rowToVideo)
+    .filter((v) => v.guestIds.length === 0);
 }
 
 // ---- Audit log (read-only; only the trigger writes here) ----------------
