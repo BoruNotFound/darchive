@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AdminGate } from "@/components/AdminGate";
 import { GuestPicker } from "@/components/GuestPicker";
@@ -8,6 +8,8 @@ import {
   setVideoGuests,
 } from "@/lib/db";
 import type { Guest, GuestId, Video } from "@/types";
+
+type SortOrder = "desc" | "asc"; // by published_at
 
 export function VideosMissingGuestsPage() {
   return (
@@ -43,12 +45,19 @@ function MissingGuestsList() {
   const [videos, setVideos] = useState<Video[] | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [order, setOrder] = useState<SortOrder>("desc");
 
   // Inline editor state — only one row open at a time.
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftIds, setDraftIds] = useState<GuestId[]>([]);
   const [saving, setSaving] = useState(false);
   const [rowError, setRowError] = useState<string | null>(null);
+
+  // The fetch already returns newest-first; reverse if the user picked oldest.
+  const sortedVideos = useMemo(() => {
+    if (!videos) return null;
+    return order === "asc" ? [...videos].reverse() : videos;
+  }, [videos, order]);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,14 +135,27 @@ function MissingGuestsList() {
     );
   }
 
+  const list = sortedVideos ?? [];
+
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-600">
-        共 <strong className="text-slate-900">{videos.length}</strong>{" "}
-        个视频缺少嘉宾名单。
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-slate-600">
+          共 <strong className="text-slate-900">{videos.length}</strong>{" "}
+          个视频缺少嘉宾名单。
+        </p>
+        <button
+          type="button"
+          onClick={() => setOrder((o) => (o === "desc" ? "asc" : "desc"))}
+          className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:border-pink-300 hover:text-pink-700"
+          aria-label="切换排序"
+        >
+          {order === "desc" ? "最新优先" : "最早优先"}
+          <span aria-hidden>{order === "desc" ? "↓" : "↑"}</span>
+        </button>
+      </div>
       <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        {videos.map((v) => {
+        {list.map((v) => {
           const isEditing = editingId === v.id;
           return (
             <li key={v.id} className="px-4 py-4">

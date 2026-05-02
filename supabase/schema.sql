@@ -13,13 +13,20 @@
 CREATE TABLE IF NOT EXISTS guests (
   id          text PRIMARY KEY,
   name        text NOT NULL,
+  cast_type   text NOT NULL DEFAULT 'regular_cast'
+              CHECK (cast_type IN ('regular_cast', 'special_guest')),
   avatar_url  text,                                -- public URL of uploaded avatar (Supabase Storage)
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 
 -- Idempotent column adjustments for projects predating later phases.
 ALTER TABLE guests ADD COLUMN IF NOT EXISTS avatar_url text;
+ALTER TABLE guests ADD COLUMN IF NOT EXISTS cast_type text NOT NULL DEFAULT 'regular_cast';
+ALTER TABLE guests DROP CONSTRAINT IF EXISTS guests_cast_type_check;
+ALTER TABLE guests ADD CONSTRAINT guests_cast_type_check
+  CHECK (cast_type IN ('regular_cast', 'special_guest'));
 ALTER TABLE guests DROP COLUMN IF EXISTS aliases;
+ALTER TABLE guests DROP COLUMN IF EXISTS is_resident;
 
 CREATE TABLE IF NOT EXISTS videos (
   id            text PRIMARY KEY,

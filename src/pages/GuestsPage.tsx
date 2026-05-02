@@ -143,7 +143,18 @@ function GuestsManager() {
           >
             <Avatar guest={g} size={40} />
             <div className="min-w-0 flex-1">
-              <div className="font-medium text-slate-900">{g.name}</div>
+              <div className="flex items-center gap-2 font-medium text-slate-900">
+                <span>{g.name}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                    g.castType === "regular_cast"
+                      ? "bg-slate-100 text-slate-600"
+                      : "bg-rose-100 text-rose-700"
+                  }`}
+                >
+                  {g.castType === "regular_cast" ? "常驻" : "特邀"}
+                </span>
+              </div>
             </div>
             <div className="flex items-center gap-1">
               <button

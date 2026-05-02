@@ -22,6 +22,7 @@ import type {
 interface GuestRow {
   id: string;
   name: string;
+  cast_type: "regular_cast" | "special_guest";
   avatar_url: string | null;
 }
 
@@ -42,6 +43,7 @@ function rowToGuest(r: GuestRow): Guest {
   return {
     id: r.id,
     name: r.name,
+    castType: r.cast_type ?? "regular_cast",
     avatarUrl: r.avatar_url ?? undefined,
   };
 }
@@ -179,6 +181,7 @@ export async function createGuest(input: GuestInput): Promise<Guest> {
     .insert({
       id,
       name: input.name,
+      cast_type: input.castType ?? "regular_cast",
       avatar_url: input.avatarUrl ?? null,
     })
     .select()
@@ -193,6 +196,7 @@ export async function updateGuest(
 ): Promise<Guest> {
   const update: Record<string, unknown> = {};
   if (patch.name !== undefined) update.name = patch.name;
+  if (patch.castType !== undefined) update.cast_type = patch.castType;
   if (patch.avatarUrl !== undefined) update.avatar_url = patch.avatarUrl;
   const { data, error } = await supabase
     .from("guests")

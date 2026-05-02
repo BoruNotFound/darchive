@@ -30,6 +30,7 @@ async function main() {
     mockGuests.map((g) => ({
       id: g.id,
       name: g.name,
+      cast_type: g.castType,
     })),
   );
   if (gErr) throw gErr;

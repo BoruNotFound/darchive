@@ -4,12 +4,12 @@ import type { Guest, Video } from "@/types";
 // Names are placeholders — swap for real cast members when the crawl runs.
 
 export const mockGuests: Guest[] = [
-  { id: "g1", name: "大物是也" },
-  { id: "g2", name: "老李" },
-  { id: "g3", name: "小张" },
-  { id: "g4", name: "阿K" },
-  { id: "g5", name: "胖虎" },
-  { id: "g6", name: "小美" },
+  { id: "g1", name: "大物是也", castType: "regular_cast" },
+  { id: "g2", name: "老李", castType: "regular_cast" },
+  { id: "g3", name: "小张", castType: "regular_cast" },
+  { id: "g4", name: "阿K", castType: "regular_cast" },
+  { id: "g5", name: "胖虎", castType: "regular_cast" },
+  { id: "g6", name: "小美", castType: "special_guest" },
 ];
 
 export const mockVideos: Video[] = [

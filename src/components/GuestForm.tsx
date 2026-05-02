@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Avatar } from "@/components/Avatar";
 import { uploadGuestAvatar } from "@/lib/storage";
-import type { Guest, GuestInput } from "@/types";
+import type { CastType, Guest, GuestInput } from "@/types";
 
 interface GuestFormProps {
   /** Pass an existing guest for edit mode; omit for create. */
@@ -21,6 +21,10 @@ export function GuestForm({
 }: GuestFormProps) {
   const isEdit = Boolean(initial);
   const [name, setName] = useState(initial?.name ?? "");
+  // Default new guests to 常驻嘉宾.
+  const [castType, setCastType] = useState<CastType>(
+    initial?.castType ?? "regular_cast",
+  );
   // null = explicitly cleared, undefined = unchanged
   const [avatarUrl, setAvatarUrl] = useState<string | null | undefined>(
     initial?.avatarUrl,
@@ -60,6 +64,7 @@ export function GuestForm({
       await onSubmit({
         id: initial?.id,
         name: name.trim(),
+        castType,
         avatarUrl,
       });
     } catch (e) {
@@ -122,6 +127,34 @@ export function GuestForm({
           className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-200"
           placeholder="例如:老李"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700">类型</label>
+        <div className="mt-1 inline-flex items-center gap-1 rounded-lg bg-slate-100 p-1 text-sm font-medium">
+          <button
+            type="button"
+            onClick={() => setCastType("regular_cast")}
+            className={`rounded-md px-3 py-1 transition ${
+              castType === "regular_cast"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            常驻嘉宾
+          </button>
+          <button
+            type="button"
+            onClick={() => setCastType("special_guest")}
+            className={`rounded-md px-3 py-1 transition ${
+              castType === "special_guest"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            特邀嘉宾
+          </button>
+        </div>
       </div>
 
       {error && (

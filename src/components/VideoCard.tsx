@@ -71,10 +71,15 @@ export function VideoCard({ video, guestsById }: VideoCardProps) {
               </span>
             );
           }
+          // regular_cast → gray (default); special_guest → soft red.
+          const chipCls =
+            g.castType === "regular_cast"
+              ? "bg-slate-100 text-slate-700"
+              : "bg-rose-100 text-rose-700";
           return (
             <span
               key={id}
-              className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 py-0.5 pl-0.5 pr-2 text-xs font-medium text-slate-700"
+              className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs font-medium ${chipCls}`}
             >
               <Avatar guest={g} size={18} />
               {g.name}

@@ -5,9 +5,20 @@
 export type GuestId = string;
 export type VideoId = string;
 
+/**
+ * Cast role.
+ *   - regular_cast : 常驻嘉宾 (counted by analytics)
+ *   - special_guest: 特邀嘉宾 (excluded from analytics)
+ *
+ * String union (rather than boolean) so we can add more roles later
+ * without another migration.
+ */
+export type CastType = "regular_cast" | "special_guest";
+
 export interface Guest {
   id: GuestId;
   name: string;
+  castType: CastType;
   /** Public URL of an uploaded avatar (Supabase Storage). Falls back to initials. */
   avatarUrl?: string;
 }
@@ -16,6 +27,7 @@ export interface Guest {
 export interface GuestInput {
   id?: GuestId;
   name: string;
+  castType?: CastType;
   avatarUrl?: string | null;
 }
 

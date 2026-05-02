@@ -87,7 +87,9 @@ export function AnalyticsPage() {
     };
   }, [range.start, range.end]);
 
-  // Aggregate: for each guest who appeared, count appearances + rate.
+  // Aggregate: for each *resident* guest who appeared, count appearances + rate.
+  // 特邀嘉宾 (non-residents) are excluded — they're guest stars, not part of
+  // the regular cast attendance metric.
   const stats: GuestStat[] = useMemo(() => {
     const total = videos.length;
     if (total === 0) return [];
@@ -102,6 +104,7 @@ export function AnalyticsPage() {
       .map(([gid, n]) => {
         const guest = guestById.get(gid);
         if (!guest) return null;
+        if (guest.castType !== "regular_cast") return null;
         return { guest, appearances: n, rate: n / total };
       })
       .filter((s): s is GuestStat => s !== null)
@@ -115,7 +118,7 @@ export function AnalyticsPage() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">数据分析</h1>
             <p className="text-sm text-slate-500">
-              嘉宾出勤率 · 按时间段统计
+              嘉宾出勤率 · 按时间段统计 · 仅常驻嘉宾
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-4">
@@ -225,7 +228,7 @@ export function AnalyticsPage() {
             </strong>{" "}
             · 共{" "}
             <strong className="text-slate-900">{videos.length}</strong> 条视频 ·{" "}
-            <strong className="text-slate-900">{stats.length}</strong> 位嘉宾出现
+            <strong className="text-slate-900">{stats.length}</strong> 位常驻嘉宾出现
           </div>
         )}
 
