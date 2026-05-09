@@ -5,12 +5,12 @@
     <title>大物娱乐民间HR · Dashboard</title>
     <script>
       // SPA-redirect for GitHub Pages.
-      // When someone visits /dawushiye-hr/admin/videos directly (or refreshes),
+      // When someone visits /dawushiye-dashboard/admin/videos directly (or refreshes),
       // GH Pages can't find that file, so it serves this 404.html. We rewrite
-      // the URL to /dawushiye-hr/?/admin/videos and bounce — index.html's
+      // the URL to /dawushiye-dashboard/?/admin/videos and bounce — index.html's
       // companion script then restores the original URL before React mounts.
       // Based on https://github.com/rafgraph/spa-github-pages
-      var pathSegmentsToKeep = 1; // preserve "/dawushiye-hr/" prefix
+      var pathSegmentsToKeep = 1; // preserve "/dawushiye-dashboard/" prefix
       var l = window.location;
       l.replace(
         l.protocol +

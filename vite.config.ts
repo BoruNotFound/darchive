@@ -5,14 +5,14 @@ import { fileURLToPath, URL } from "node:url";
 
 // `base` differs between dev and prod:
 //   - dev:   "/"               so `npm run dev` works at localhost:5173/
-//   - build: "/dawushiye-hr/"  so assets resolve under GH Pages project URL
-//     (https://<user>.github.io/dawushiye-hr/).
+//   - build: "/dawushiye-dashboard/"  so assets resolve under GH Pages project URL
+//     (https://<user>.github.io/dawushiye-dashboard/).
 //
 // `resolve.alias` mirrors tsconfig.app.json's `paths` because TS path
 // mappings are compile-time only and don't carry into the bundler.
 export default defineConfig(({ command }) => ({
   plugins: [react(), tailwindcss()],
-  base: command === "build" ? "/dawushiye-hr/" : "/",
+  base: command === "build" ? "/dawushiye-dashboard/" : "/",
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
