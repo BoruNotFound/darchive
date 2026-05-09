@@ -96,14 +96,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      // IMPORTANT: do NOT call any other supabase-js methods directly here.
+      // Supabase holds an internal auth lock for the duration of this
+      // callback; calling supabase.rpc / .from inside it deadlocks until the
+      // lock times out (~6s). Defer to the next macrotask so we run AFTER
+      // the auth client has released the lock.
+      // See: https://supabase.com/docs/reference/javascript/auth-onauthstatechange
       if (!mounted) return;
       setSession(newSession);
-      try {
-        await checkAdmin(newSession);
-      } catch (err) {
-        console.error("[auth] checkAdmin failed:", err);
-      }
+      setTimeout(() => {
+        if (!mounted) return;
+        checkAdmin(newSession).catch((err) => {
+          console.error("[auth] checkAdmin failed:", err);
+        });
+      }, 0);
     });
 
     return () => {

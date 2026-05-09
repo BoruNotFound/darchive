@@ -46,13 +46,17 @@ export function MultiGuestFilter({
   }, [open]);
 
   // Candidates = guests not yet selected, matching the typed query.
-  const candidates = useMemo(
-    () =>
-      guests
-        .filter((g) => !selectedGuestIds.has(g.id))
-        .filter((g) => matchesQuery(g, query)),
-    [guests, selectedGuestIds, query],
-  );
+  // When the user hasn't typed anything yet, hide 特邀嘉宾 to keep the
+  // default dropdown short — they appear only when explicitly searched for.
+  const candidates = useMemo(() => {
+    const q = query.trim();
+    return guests
+      .filter((g) => !selectedGuestIds.has(g.id))
+      .filter((g) => {
+        if (!q) return g.castType === "regular_cast";
+        return matchesQuery(g, q);
+      });
+  }, [guests, selectedGuestIds, query]);
 
   // Reset highlight when the candidate list changes shape.
   useEffect(() => {

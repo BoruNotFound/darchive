@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import type { Guest, Video } from "@/types";
 
@@ -21,8 +22,23 @@ function formatDuration(sec: number | undefined): string | null {
   return `${m} 分钟`;
 }
 
+// Two rows of chips fit in ~48px (each chip ≈ 22px tall + 4px gap between rows).
+// Use 50 as the overflow threshold so sub-pixel rendering doesn't false-positive.
+const TWO_ROW_PX = 50;
+
 export function VideoCard({ video, guestsById }: VideoCardProps) {
   const duration = formatDuration(video.durationSec);
+
+  // Collapse the guest chip list to 2 rows by default; expand on user request.
+  const guestsRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
+
+  useLayoutEffect(() => {
+    const el = guestsRef.current;
+    if (!el) return;
+    setHasOverflow(el.scrollHeight > TWO_ROW_PX);
+  }, [video.guestIds, guestsById]);
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
@@ -58,34 +74,50 @@ export function VideoCard({ video, guestsById }: VideoCardProps) {
         )}
       </div>
 
-      <div className="mb-3 flex flex-wrap gap-1">
-        {video.guestIds.map((id) => {
-          const g = guestsById.get(id);
-          if (!g) {
+      <div className="mb-3">
+        <div
+          ref={guestsRef}
+          className={`flex flex-wrap gap-1 ${
+            !expanded ? "max-h-12 overflow-hidden" : ""
+          }`}
+        >
+          {video.guestIds.map((id) => {
+            const g = guestsById.get(id);
+            if (!g) {
+              return (
+                <span
+                  key={id}
+                  className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700"
+                >
+                  {id}
+                </span>
+              );
+            }
+            // regular_cast → gray (default); special_guest → soft red.
+            const chipCls =
+              g.castType === "regular_cast"
+                ? "bg-slate-100 text-slate-700"
+                : "bg-rose-100 text-rose-700";
             return (
               <span
                 key={id}
-                className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700"
+                className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs font-medium ${chipCls}`}
               >
-                {id}
+                <Avatar guest={g} size={18} />
+                {g.name}
               </span>
             );
-          }
-          // regular_cast → gray (default); special_guest → soft red.
-          const chipCls =
-            g.castType === "regular_cast"
-              ? "bg-slate-100 text-slate-700"
-              : "bg-rose-100 text-rose-700";
-          return (
-            <span
-              key={id}
-              className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs font-medium ${chipCls}`}
-            >
-              <Avatar guest={g} size={18} />
-              {g.name}
-            </span>
-          );
-        })}
+          })}
+        </div>
+        {hasOverflow && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-1 text-[11px] text-slate-500 underline-offset-2 hover:text-slate-800 hover:underline"
+          >
+            {expanded ? "收起 ↑" : `展开全部(${video.guestIds.length}) ↓`}
+          </button>
+        )}
       </div>
 
       <a
