@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { AcknowledgementButton } from "@/components/AcknowledgementButton";
+import { AcknowledgementButton, CreditsButton, GuideButton } from "@/components/AcknowledgementButton";
 import { MultiGuestFilter } from "@/components/MultiGuestFilter";
 import { VideoList } from "@/components/VideoList";
 import { listGuests, searchVideos } from "@/lib/db";
@@ -147,8 +147,12 @@ export function Dashboard() {
               浏览所有视频,按标题与嘉宾筛选(嘉宾可多选)。
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-4">
+          <div className="flex shrink-0 items-center gap-3">
+            <GuideButton />
+            <span className="text-slate-300">|</span>
             <AcknowledgementButton />
+            <span className="text-slate-300">|</span>
+            <CreditsButton />
           </div>
         </div>
       </header>

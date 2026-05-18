@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import Markdown from "react-markdown";
 
-/**
- * Inline "致谢" link + the dialog it opens. Drop into any page header that
- * wants to surface it. State is local so multiple instances don't collide.
- */
 export function AcknowledgementButton() {
   const [open, setOpen] = useState(false);
 
@@ -17,20 +13,54 @@ export function AcknowledgementButton() {
       >
         致谢
       </button>
-      {open && <AcknowledgementDialog onClose={() => setOpen(false)} />}
+      {open && <MarkdownDialog src="/acknowledgement.md" onClose={() => setOpen(false)} />}
     </>
   );
 }
 
-function AcknowledgementDialog({ onClose }: { onClose: () => void }) {
+export function CreditsButton() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="text-sm text-slate-400 underline-offset-2 transition hover:text-slate-700 hover:underline"
+      >
+        制作人员
+      </button>
+      {open && <MarkdownDialog src="/credits.md" onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+export function GuideButton() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="text-sm text-slate-400 underline-offset-2 transition hover:text-slate-700 hover:underline"
+      >
+        使用说明
+      </button>
+      {open && <MarkdownDialog src="/guide.md" onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+function MarkdownDialog({ src, onClose }: { src: string; onClose: () => void }) {
   const [content, setContent] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/acknowledgement.md")
+    fetch(src)
       .then((r) => r.text())
       .then(setContent)
       .catch(() => setContent("（内容加载失败）"));
-  }, []);
+  }, [src]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -48,7 +78,6 @@ function AcknowledgementDialog({ onClose }: { onClose: () => void }) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="ack-title"
         onClick={(e) => e.stopPropagation()}
         className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-lg"
       >
