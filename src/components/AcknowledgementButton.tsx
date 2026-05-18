@@ -95,7 +95,11 @@ function MarkdownDialog({ src, onClose }: { src: string; onClose: () => void }) 
           <p className="text-sm text-slate-400">加载中…</p>
         ) : (
           <div className="prose prose-slate prose-sm max-w-none prose-img:rounded-lg prose-img:shadow-sm prose-a:text-pink-600 prose-headings:text-slate-900">
-            <Markdown>{content}</Markdown>
+            <Markdown components={{ img: ({ src, alt }) => {
+              const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+              const resolved = src?.startsWith("/") ? `${base}${src}` : src;
+              return <img src={resolved} alt={alt} />;
+            }}}>{content}</Markdown>
           </div>
         )}
       </div>
