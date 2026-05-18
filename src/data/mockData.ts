@@ -20,6 +20,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2026-04-12",
     guestIds: ["g1", "g2"],
     durationSec: 14 * 60,
+    isCollab: false,
   },
   {
     id: "v2",
@@ -28,6 +29,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2026-03-28",
     guestIds: ["g1", "g3", "g4"],
     durationSec: 22 * 60,
+    isCollab: false,
   },
   {
     id: "v3",
@@ -36,6 +38,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2026-03-10",
     guestIds: ["g1", "g5"],
     durationSec: 11 * 60,
+    isCollab: false,
   },
   {
     id: "v4",
@@ -44,6 +47,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2026-02-22",
     guestIds: ["g1", "g2", "g3", "g4", "g5"],
     durationSec: 31 * 60,
+    isCollab: false,
   },
   {
     id: "v5",
@@ -52,6 +56,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2026-02-05",
     guestIds: ["g1", "g6"],
     durationSec: 18 * 60,
+    isCollab: false,
   },
   {
     id: "v6",
@@ -60,6 +65,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2026-01-18",
     guestIds: ["g1", "g2", "g4"],
     durationSec: 20 * 60,
+    isCollab: false,
   },
   {
     id: "v7",
@@ -68,6 +74,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2025-12-30",
     guestIds: ["g1", "g3", "g6"],
     durationSec: 25 * 60,
+    isCollab: false,
   },
   {
     id: "v8",
@@ -76,6 +83,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2025-12-15",
     guestIds: ["g1", "g2", "g3", "g4", "g5", "g6"],
     durationSec: 40 * 60,
+    isCollab: false,
   },
   {
     id: "v9",
@@ -84,6 +92,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2025-11-02",
     guestIds: ["g1", "g4"],
     durationSec: 16 * 60,
+    isCollab: false,
   },
   {
     id: "v10",
@@ -92,6 +101,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2025-10-08",
     guestIds: ["g1", "g2", "g6"],
     durationSec: 28 * 60,
+    isCollab: false,
   },
   {
     id: "v11",
@@ -100,6 +110,7 @@ export const mockVideos: Video[] = [
     publishedAt: "2025-09-14",
     guestIds: ["g1", "g3", "g5"],
     durationSec: 19 * 60,
+    isCollab: false,
   },
   {
     id: "v12",
@@ -108,5 +119,6 @@ export const mockVideos: Video[] = [
     publishedAt: "2025-08-20",
     guestIds: ["g1"],
     durationSec: 15 * 60,
+    isCollab: false,
   },
 ];
