@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       options: {
         // Honor the Vite base path so the redirect lands at /admin in dev
-        // and at /dawushiye-dashboard/admin in prod (under GH Pages project URL).
+        // and at /darchive/admin in prod (under GH Pages project URL).
         emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}admin`,
       },
     });

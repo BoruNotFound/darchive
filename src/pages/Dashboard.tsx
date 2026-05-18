@@ -136,9 +136,14 @@ export function Dashboard() {
         <div className="mx-auto flex max-w-6xl items-start justify-between gap-4 px-6 py-6">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-bold tracking-tight">
-              大物是也 · 视频面板
+              <span style={{ color: "#F16A46" }}>大物是也</span> · 视频收录
             </h1>
+            <p className="text-[24px] font-bold tracking-tight">
+              <span style={{ color: "#F16A46" }}>D</span>Archive
+            </p>
             <p className="text-sm text-slate-500">
+              本网站仅收录大物是也频道自2021.12.09之后的视频，请支持原up - <a href="https://space.bilibili.com/208130286" target="_blank" rel="noopener noreferrer" className="text-pink-600 underline-offset-2 hover:underline">大物是也</a>。
+              <br />
               浏览所有视频,按标题与嘉宾筛选(嘉宾可多选)。
             </p>
           </div>

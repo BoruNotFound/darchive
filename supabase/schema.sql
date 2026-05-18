@@ -1,5 +1,5 @@
 -- ============================================================================
--- dawushiye-dashboard · initial schema
+-- darchive · initial schema
 -- ============================================================================
 -- Paste this whole file into the Supabase SQL editor and click Run.
 -- Re-runnable: every statement uses IF NOT EXISTS / OR REPLACE where possible

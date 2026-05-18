@@ -2,7 +2,7 @@
 
 视频来源：[大物是也Bilibili主页](https://space.bilibili.com/178429408)
 
-**Live site: https://borunotfound.github.io/dawushiye-dashboard/**
+**Live site: https://borunotfound.github.io/darchive/**
 
 ---
 
