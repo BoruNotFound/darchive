@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/Avatar";
+import { guestPillClasses } from "@/lib/guestPill";
 import type { Guest, Video } from "@/types";
 
 interface VideoCardProps {
@@ -81,7 +82,13 @@ export function VideoCard({ video, guestsById }: VideoCardProps) {
             !expanded ? "max-h-12 overflow-hidden" : ""
           }`}
         >
-          {video.guestIds.map((id) => {
+          {[...video.guestIds]
+            .sort((a, b) => {
+              const ra = guestsById.get(a)?.castType === "special_guest" ? 1 : 0;
+              const rb = guestsById.get(b)?.castType === "special_guest" ? 1 : 0;
+              return ra - rb;
+            })
+            .map((id) => {
             const g = guestsById.get(id);
             if (!g) {
               return (
@@ -93,15 +100,10 @@ export function VideoCard({ video, guestsById }: VideoCardProps) {
                 </span>
               );
             }
-            // regular_cast → gray (default); special_guest → soft red.
-            const chipCls =
-              g.castType === "regular_cast"
-                ? "bg-slate-100 text-slate-700"
-                : "bg-rose-100 text-rose-700";
             return (
               <span
                 key={id}
-                className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs font-medium ${chipCls}`}
+                className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs font-medium ${guestPillClasses(g)}`}
               >
                 <Avatar guest={g} size={18} />
                 {g.name}

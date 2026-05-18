@@ -93,6 +93,21 @@ function AdminHome() {
         </Link>
 
         <Link
+          to="/analytics"
+          className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-pink-300 hover:shadow-md"
+        >
+          <div className="text-base font-semibold text-slate-900">
+            数据分析
+          </div>
+          <p className="mt-1 text-sm text-slate-500">
+            嘉宾出场次数、视频时长分布等统计。
+          </p>
+          <div className="mt-3 text-xs font-medium text-pink-600">
+            前往 →
+          </div>
+        </Link>
+
+        <Link
           to="/admin/audit-log"
           className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-pink-300 hover:shadow-md md:col-span-2"
         >

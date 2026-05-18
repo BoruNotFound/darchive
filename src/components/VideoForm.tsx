@@ -45,6 +45,7 @@ export function VideoForm({
     initial?.thumbnailUrl,
   );
   const [guestIds, setGuestIds] = useState<string[]>(initial?.guestIds ?? []);
+  const [isCollab, setIsCollab] = useState(initial?.isCollab ?? false);
 
   const [fetching, setFetching] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -146,6 +147,7 @@ export function VideoForm({
         durationSec: minutesToSecs(durationMin),
         thumbnailUrl,
         guestIds,
+        isCollab,
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -272,6 +274,16 @@ export function VideoForm({
           onGuestCreated={onGuestCreated}
         />
       </div>
+
+      <label className="flex items-center gap-2 text-sm text-slate-700">
+        <input
+          type="checkbox"
+          checked={isCollab}
+          onChange={(e) => setIsCollab(e.target.checked)}
+          className="h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500"
+        />
+        合作视频（与其他创作者联合发布,不计入数据分析）
+      </label>
 
       {error && (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">

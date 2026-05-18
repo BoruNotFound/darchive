@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
 import { AdminGate } from "@/components/AdminGate";
@@ -10,6 +10,7 @@ import {
   listVideos,
   updateVideo,
 } from "@/lib/db";
+import { guestPillClasses } from "@/lib/guestPill";
 import type { Guest, Video, VideoInput } from "@/types";
 
 type EditorState =
@@ -146,71 +147,87 @@ function VideosManager() {
         />
       )}
 
-      {editor.mode === "edit" && (
-        <VideoForm
-          initial={editor.video}
-          guests={guests}
-          onGuestCreated={handleGuestCreated}
-          onSubmit={handleEdit}
-          onCancel={() => setEditor({ mode: "closed" })}
-        />
-      )}
-
       <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         {videos.map((v) => (
-          <li key={v.id} className="flex items-start gap-4 px-4 py-4">
-            {v.thumbnailUrl ? (
-              <img
-                src={v.thumbnailUrl}
-                alt=""
-                className="h-16 w-28 shrink-0 rounded-md object-cover"
-              />
-            ) : (
-              <div className="flex h-16 w-28 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs text-slate-400">
-                无封面
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <div className="font-medium text-slate-900">{v.title}</div>
-              <div className="mt-0.5 text-xs text-slate-500">
-                {v.publishedAt}
-                {v.durationSec ? ` · ${Math.round(v.durationSec / 60)} 分钟` : ""}
-              </div>
-              {v.guestIds.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {v.guestIds.map((id) => {
-                    const g = guestsById.get(id);
-                    if (!g) return null;
-                    return (
-                      <span
-                        key={id}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 py-0.5 pl-0.5 pr-2 text-xs text-slate-700"
-                      >
-                        <Avatar guest={g} size={16} />
-                        {g.name}
-                      </span>
-                    );
-                  })}
+          <Fragment key={v.id}>
+            <li className="flex items-start gap-4 px-4 py-4">
+              {v.thumbnailUrl ? (
+                <img
+                  src={v.thumbnailUrl}
+                  alt=""
+                  className="h-16 w-28 shrink-0 rounded-md object-cover"
+                />
+              ) : (
+                <div className="flex h-16 w-28 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs text-slate-400">
+                  无封面
                 </div>
               )}
-            </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setEditor({ mode: "edit", video: v })}
-                className="rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
-              >
-                编辑
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(v)}
-                className="rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
-              >
-                删除
-              </button>
-            </div>
-          </li>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 font-medium text-slate-900">
+                  {v.title}
+                  {v.isCollab && (
+                    <span className="inline-flex shrink-0 items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                      合作视频
+                    </span>
+                  )}
+                </div>
+                <div className="mt-0.5 text-xs text-slate-500">
+                  {v.publishedAt}
+                  {v.durationSec ? ` · ${Math.round(v.durationSec / 60)} 分钟` : ""}
+                </div>
+                {v.guestIds.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {v.guestIds.map((id) => {
+                      const g = guestsById.get(id);
+                      if (!g) return null;
+                      return (
+                        <span
+                          key={id}
+                          className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-2 text-xs ${guestPillClasses(g)}`}
+                        >
+                          <Avatar guest={g} size={16} />
+                          {g.name}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditor(
+                      editor.mode === "edit" && editor.video.id === v.id
+                        ? { mode: "closed" }
+                        : { mode: "edit", video: v },
+                    )
+                  }
+                  className="rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                >
+                  {editor.mode === "edit" && editor.video.id === v.id ? "收起" : "编辑"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(v)}
+                  className="rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+                >
+                  删除
+                </button>
+              </div>
+            </li>
+            {editor.mode === "edit" && editor.video.id === v.id && (
+              <li className="border-t border-slate-100 bg-slate-50 px-4 py-4">
+                <VideoForm
+                  initial={editor.video}
+                  guests={guests}
+                  onGuestCreated={handleGuestCreated}
+                  onSubmit={handleEdit}
+                  onCancel={() => setEditor({ mode: "closed" })}
+                />
+              </li>
+            )}
+          </Fragment>
         ))}
         {!loading && videos.length === 0 && (
           <li className="px-4 py-8 text-center text-sm text-slate-500">

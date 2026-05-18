@@ -144,12 +144,6 @@ export function Dashboard() {
           </div>
           <div className="flex shrink-0 items-center gap-4">
             <AcknowledgementButton />
-            <Link
-              to="/analytics"
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-pink-300 hover:text-pink-700"
-            >
-              数据分析 →
-            </Link>
           </div>
         </div>
       </header>

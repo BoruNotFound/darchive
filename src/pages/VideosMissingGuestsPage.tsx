@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { AdminGate } from "@/components/AdminGate";
 import { GuestPicker } from "@/components/GuestPicker";
 import {
+  deleteVideo,
   listGuests,
   listVideosMissingGuests,
+  setVideoCollab,
   setVideoGuests,
 } from "@/lib/db";
 import type { Guest, GuestId, Video } from "@/types";
@@ -109,6 +111,17 @@ function MissingGuestsList() {
     }
   }
 
+  async function handleDelete(v: Video) {
+    const ok = window.confirm(`删除视频「${v.title}」?此操作不可撤销。`);
+    if (!ok) return;
+    try {
+      await deleteVideo(v.id);
+      setVideos((vs) => (vs ? vs.filter((x) => x.id !== v.id) : vs));
+    } catch (e) {
+      alert(`删除失败:${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
   function handleGuestCreated(g: Guest) {
     setGuests((gs) => [...gs, g]);
   }
@@ -189,13 +202,50 @@ function MissingGuestsList() {
                       在 bilibili 观看 →
                     </a>
                     {!isEditing && (
-                      <button
-                        type="button"
-                        onClick={() => startEdit(v.id)}
-                        className="rounded-md bg-pink-600 px-2 py-1 font-medium text-white shadow-sm hover:bg-pink-700"
-                      >
-                        添加嘉宾
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => startEdit(v.id)}
+                          className="rounded-md bg-pink-600 px-2 py-1 font-medium text-white shadow-sm hover:bg-pink-700"
+                        >
+                          添加嘉宾
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await setVideoCollab(v.id, !v.isCollab);
+                              setVideos((vs) =>
+                                vs
+                                  ? vs.map((x) =>
+                                      x.id === v.id
+                                        ? { ...x, isCollab: !x.isCollab }
+                                        : x,
+                                    )
+                                  : vs,
+                              );
+                            } catch (e) {
+                              alert(
+                                `操作失败:${e instanceof Error ? e.message : String(e)}`,
+                              );
+                            }
+                          }}
+                          className={`rounded-md px-2 py-1 font-medium ${
+                            v.isCollab
+                              ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                              : "text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          {v.isCollab ? "已标记合作" : "标记合作"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(v)}
+                          className="rounded-md px-2 py-1 font-medium text-red-600 hover:bg-red-50"
+                        >
+                          删除
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

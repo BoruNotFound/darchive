@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Avatar } from "@/components/Avatar";
+import { sortGuests } from "@/lib/sortGuests";
 import type { Guest, GuestId } from "@/types";
 
 interface MultiGuestFilterProps {
@@ -50,12 +51,13 @@ export function MultiGuestFilter({
   // default dropdown short — they appear only when explicitly searched for.
   const candidates = useMemo(() => {
     const q = query.trim();
-    return guests
+    const filtered = guests
       .filter((g) => !selectedGuestIds.has(g.id))
       .filter((g) => {
         if (!q) return g.castType === "regular_cast";
         return matchesQuery(g, q);
       });
+    return sortGuests(filtered);
   }, [guests, selectedGuestIds, query]);
 
   // Reset highlight when the candidate list changes shape.

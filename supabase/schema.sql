@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS videos (
 
 -- Idempotent column adjustments for projects predating later phases.
 ALTER TABLE videos ADD COLUMN IF NOT EXISTS thumbnail_url text;
+ALTER TABLE videos ADD COLUMN IF NOT EXISTS is_collab boolean NOT NULL DEFAULT false;
 ALTER TABLE videos DROP COLUMN IF EXISTS description;
 
 -- M2M join: which guests appeared in which videos.

@@ -46,6 +46,7 @@ export interface Video {
   durationSec?: number;
   /** Public URL of the cover image, fetched from bilibili and stored in our bucket. */
   thumbnailUrl?: string;
+  isCollab: boolean;
 }
 
 /** Shape used when creating or updating a video from the admin UI. */
@@ -57,6 +58,7 @@ export interface VideoInput {
   durationSec?: number | null;
   thumbnailUrl?: string | null;
   guestIds: GuestId[];
+  isCollab: boolean;
 }
 
 export type AuditAction = "create" | "update" | "delete";

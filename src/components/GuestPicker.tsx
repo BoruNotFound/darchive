@@ -8,6 +8,7 @@ import {
 import { Avatar } from "@/components/Avatar";
 import { GuestForm } from "@/components/GuestForm";
 import { createGuest } from "@/lib/db";
+import { sortGuests } from "@/lib/sortGuests";
 import type { Guest, GuestId, GuestInput } from "@/types";
 
 interface GuestPickerProps {
@@ -45,16 +46,14 @@ export function GuestPicker({
     [selectedGuestIds],
   );
 
-  const candidates = useMemo(
-    () =>
-      guests
-        .filter((g) => !selectedSet.has(g.id))
-        .filter(
-          (g) =>
-            !query || g.name.toLowerCase().includes(query.toLowerCase()),
-        ),
-    [guests, selectedSet, query],
-  );
+  const candidates = useMemo(() => {
+    const filtered = guests
+      .filter((g) => !selectedSet.has(g.id))
+      .filter(
+        (g) => !query || g.name.toLowerCase().includes(query.toLowerCase()),
+      );
+    return sortGuests(filtered);
+  }, [guests, selectedSet, query]);
 
   // The "+ 新增嘉宾" pseudo-row sits at index === candidates.length.
   const totalRows = candidates.length + 1;

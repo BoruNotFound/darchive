@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Markdown from "react-markdown";
 
 /**
  * Inline "致谢" link + the dialog it opens. Drop into any page header that
@@ -22,6 +23,15 @@ export function AcknowledgementButton() {
 }
 
 function AcknowledgementDialog({ onClose }: { onClose: () => void }) {
+  const [content, setContent] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/acknowledgement.md")
+      .then((r) => r.text())
+      .then(setContent)
+      .catch(() => setContent("（内容加载失败）"));
+  }, []);
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -40,7 +50,7 @@ function AcknowledgementDialog({ onClose }: { onClose: () => void }) {
         aria-modal="true"
         aria-labelledby="ack-title"
         onClick={(e) => e.stopPropagation()}
-        className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 shadow-lg"
+        className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-lg"
       >
         <button
           type="button"
@@ -50,13 +60,14 @@ function AcknowledgementDialog({ onClose }: { onClose: () => void }) {
         >
           ×
         </button>
-        <h2 id="ack-title" className="text-lg font-semibold text-slate-900">
-          致谢
-        </h2>
-        <div className="mt-4 text-sm text-slate-600">
-          {/* Placeholder — fill in real content here. */}
-          <p className="italic text-slate-400">待补充</p>
-        </div>
+
+        {content === null ? (
+          <p className="text-sm text-slate-400">加载中…</p>
+        ) : (
+          <div className="prose prose-slate prose-sm max-w-none prose-img:rounded-lg prose-img:shadow-sm prose-a:text-pink-600 prose-headings:text-slate-900">
+            <Markdown>{content}</Markdown>
+          </div>
+        )}
       </div>
     </div>
   );

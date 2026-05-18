@@ -33,6 +33,7 @@ interface VideoRow {
   published_at: string;
   duration_sec: number | null;
   thumbnail_url: string | null;
+  is_collab: boolean;
   // From the joined select(`*, video_guests(guest_id)`).
   video_guests: { guest_id: string }[];
 }
@@ -57,6 +58,7 @@ function rowToVideo(r: VideoRow): Video {
     durationSec: r.duration_sec ?? undefined,
     thumbnailUrl: r.thumbnail_url ?? undefined,
     guestIds: r.video_guests.map((vg) => vg.guest_id),
+    isCollab: r.is_collab,
   };
 }
 
@@ -85,6 +87,7 @@ export async function listVideosInRange(
     .select("*, video_guests(guest_id)")
     .gte("published_at", startDate)
     .lte("published_at", endDate)
+    .eq("is_collab", false)
     .order("published_at", { ascending: false });
   if (error) throw error;
   return (data as VideoRow[]).map(rowToVideo);
@@ -247,6 +250,7 @@ export async function createVideo(input: VideoInput): Promise<Video> {
     published_at: input.publishedAt,
     duration_sec: input.durationSec ?? null,
     thumbnail_url: input.thumbnailUrl ?? null,
+    is_collab: input.isCollab,
   });
   if (vErr) throw vErr;
 
@@ -270,6 +274,7 @@ export async function updateVideo(
     published_at: patch.publishedAt,
     duration_sec: patch.durationSec ?? null,
     thumbnail_url: patch.thumbnailUrl ?? null,
+    is_collab: patch.isCollab,
   };
   const { error: vErr } = await supabase
     .from("videos")
@@ -320,6 +325,17 @@ export async function setVideoGuests(
     );
     if (iErr) throw iErr;
   }
+}
+
+export async function setVideoCollab(
+  videoId: VideoId,
+  isCollab: boolean,
+): Promise<void> {
+  const { error } = await supabase
+    .from("videos")
+    .update({ is_collab: isCollab })
+    .eq("id", videoId);
+  if (error) throw error;
 }
 
 /**
