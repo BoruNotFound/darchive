@@ -56,7 +56,8 @@ function MarkdownDialog({ src, onClose }: { src: string; onClose: () => void }) 
   const [content, setContent] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(src)
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+    fetch(`${base}${src}`)
       .then((r) => r.text())
       .then(setContent)
       .catch(() => setContent("（内容加载失败）"));

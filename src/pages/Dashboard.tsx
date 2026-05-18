@@ -133,7 +133,7 @@ export function Dashboard() {
   return (
     <>
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-start justify-between gap-4 px-6 py-6">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-4 px-6 py-6">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-bold tracking-tight">
               <span style={{ color: "#F16A46" }}>大物是也</span> · 视频收录
@@ -147,7 +147,7 @@ export function Dashboard() {
               浏览所有视频,按标题与嘉宾筛选(嘉宾可多选)。
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex w-full shrink-0 items-center gap-3 sm:w-auto">
             <GuideButton />
             <span className="text-slate-300">|</span>
             <AcknowledgementButton />
