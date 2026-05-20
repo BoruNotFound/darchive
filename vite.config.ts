@@ -12,7 +12,7 @@ import { fileURLToPath, URL } from "node:url";
 // mappings are compile-time only and don't carry into the bundler.
 export default defineConfig(({ command }) => ({
   plugins: [react(), tailwindcss()],
-  base: command === "build" ? "/darchive/" : "/",
+  base: process.env.CF_PAGES ? '/' : '/darchive/',
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
